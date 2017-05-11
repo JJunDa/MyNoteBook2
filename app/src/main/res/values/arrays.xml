@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="notestyle">
+        <item>旅行日记</item>
+        <item>恋爱物语</item>
+        <item>日常生活</item>
+        <item>Party</item>
+        <item>校园风光</item>
+    </string-array>
+</resources>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".ui.MainActivity"
+     >
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/navigation_item_home"
+            android:icon="@drawable/love"
+            android:title="我的最爱" />
+        <item
+            android:id="@+id/navigation_item_blog"
+            android:icon="@drawable/foot"
+            android:title="我的足迹"
+            />
+        <item
+            android:id="@+id/navigation_item_about"
+            android:icon="@drawable/we"
+            android:title="关于我们" />
+        <item
+            android:id="@+id/navigation_item_help"
+            android:icon="@drawable/help"
+            android:title="帮助" />
+    </group>
+
+</menu>
