@@ -9,10 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.administrator.mynotebook.R;
+import com.example.administrator.mynotebook.ui.date.Note;
 
 import java.util.List;
-
-import com.example.administrator.mynotebook.ui.date.Note;
 
 /**
  * Created by Administrator on 2017/5/10.
@@ -25,7 +24,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{
         this.mNoteList = mNoteList;
     }
 
-
+    public void changDate(List<Note> mNoteList){
+        this.mNoteList = mNoteList;
+        notifyDataSetChanged();
+    }
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.note_item,parent,false);

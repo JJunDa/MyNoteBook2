@@ -54,7 +54,6 @@ public class NoteContentProvider extends ContentProvider {
                 return c;
             case 2:
 
-
                 break;
 
 
@@ -68,15 +67,39 @@ public class NoteContentProvider extends ContentProvider {
         return null;
     }
 
-
-
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+        SQLiteDatabase db = mHelper.getReadableDatabase();
+        int num = 0;
+        switch (sMatcher.match(uri)){
+            case 1:
+                    num = db.delete(TableNote.TABLE_NAME,selection,selectionArgs);
+                break;
+
+            case 2:
+
+                break;
+
+        }
+            getContext().getContentResolver().notifyChange(uri,null);
+        return num;
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        int num = 0;
+        switch (sMatcher.match(uri)){
+            case 1:
+                num = db.update(TableNote.TABLE_NAME,values,selection,selectionArgs);
+                break;
+
+            case 2:
+
+                break;
+
+        }
+        getContext().getContentResolver().notifyChange(uri,null);
+        return num;
     }
 }

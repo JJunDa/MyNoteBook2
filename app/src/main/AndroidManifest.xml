@@ -16,6 +16,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.AddActivity"></activity>
+        <activity android:name=".ui.SearchActivity"></activity>
 
         <provider
             android:name="com.example.administrator.mynotebook.ui.date.NoteContentProvider"

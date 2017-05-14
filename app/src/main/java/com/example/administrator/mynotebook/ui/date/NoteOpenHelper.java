@@ -9,7 +9,6 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class NoteOpenHelper extends SQLiteOpenHelper {
     private  static NoteOpenHelper mInstance;
-//    boolean isDel, int id,int notifiId, int starId, String title, String content, String createDate, String modifyDate
     private  final  String CREATE_TABLE_NOTE =
             "create table note (id int, notifiId int, starId int, title varchar(40), content text, createtime date, isdel int default 0);";
 

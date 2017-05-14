@@ -8,7 +8,7 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/navigation_item_home"
-            android:icon="@drawable/love"
+            android:icon="@drawable/love_a"
             android:title="我的最爱" />
         <item
             android:id="@+id/navigation_item_blog"

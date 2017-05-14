@@ -9,27 +9,31 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.Time;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.administrator.mynotebook.R;
+import com.example.administrator.mynotebook.ui.date.EventBusEvent;
 import com.example.administrator.mynotebook.ui.date.Note;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-import MyInterface.saveNote;
 import adapter.MyAdapter;
 
-public class MainActivity extends AppCompatActivity implements saveNote {
+public class MainActivity extends AppCompatActivity{
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
     private FloatingActionButton mFloatingActionButton;
     private ImageView menubtn;
-
+    private ImageView searchbtn;
     private MyAdapter mMyAdapter;
     private List<Note> mNoteList = new ArrayList<Note>();
     private RecyclerView mRecyclerView;
@@ -40,21 +44,51 @@ public class MainActivity extends AppCompatActivity implements saveNote {
         setContentView(R.layout.activity_main);
 
         inits();
-
+        EventBus.getDefault().register(MainActivity.this);//注册EventBus
     }
 
+    //EventBus接收消息
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMoonEvent(EventBusEvent event){
+//        String msg = "onEventMainThread收到了消息：" + event.getMsg();
+//        Log.d("harvic", msg);
+        String msg = "添加成功！";
+        addNote(event.getMsg());
+
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(MainActivity.this);//反注册EventBus
+    }
+
+    //初始化控件，菜单和添加事件
     private void inits() {
         mFloatingActionButton = (FloatingActionButton) findViewById(R.id.fab_add);
         menubtn = (ImageView) findViewById(R.id.menu);
+        searchbtn = (ImageView) findViewById(R.id.search);
         mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
 
-        addBtnAction();
-        menuButAction();
-
+        addBtnAction();//菜单右滑
+        menuButAction();//跳转到addActivity
+        searchAction();
     }
 
+    private void searchAction() {
+        searchbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    //菜单右滑
     private void menuButAction() {
         menubtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,37 +98,23 @@ public class MainActivity extends AppCompatActivity implements saveNote {
         });
     }
 
+    //跳转到addActivity
     private void addBtnAction() {
         mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//               addNote();
-//                showNewNote();
-             Intent intent = new Intent(MainActivity.this, AddActivity.class);
+                Intent intent = new Intent(MainActivity.this, AddActivity.class);
                 startActivity(intent);
             }
         });
     }
 
-    private void addNote() {
-        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
-        String date=sdf.format(new java.util.Date());
+    //把添加的记事本用RcycleView显示出来
+    private void addNote(Note addNote) {
+        mNoteList.add(addNote);
 
-        Time t=new Time(); // or Time t=new Time("GMT+8"); 加上Time Zone资料。
-        t.setToNow();
-        int hour = t.hour; // 0-23
-        int minute = t.minute;
-        String timeStr;
-        if(hour>=6 && hour<=12){
-            timeStr = "上午 "+ hour+":"+minute;
-        }else if(hour>=12 && hour<=19){
-            timeStr = "下午 "+ hour+":"+minute;
-        }else{
-            timeStr = "晚上 "+ hour+":"+minute;
-        }
-
-        mNoteList.add(new Note(false, R.drawable.book,R.drawable.notifications,R.drawable.star_a, "标题1", "内容1", date, timeStr));
-
+        //默认添加
+        defaultadd();
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         LinearLayoutManager manager = new LinearLayoutManager(this);
@@ -105,44 +125,25 @@ public class MainActivity extends AppCompatActivity implements saveNote {
         mMyAdapter = new MyAdapter(mNoteList);
         mRecyclerView.setAdapter(mMyAdapter);
 
+        mMyAdapter.changDate(mNoteList);
     }
 
-    @Override
-    public void addLists(boolean isDel, int id, int notifiId, int starId, String title, String content, String createDate, String modifyDate) {
+    //默认添加
+    private void defaultadd() {
         SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
-        String date=sdf.format(new java.util.Date());
-
-        Log.i("AAA","________________________");
-        Time t=new Time();
-        t.setToNow();
-        int hour = t.hour;
-        int minute = t.minute;
-        String timeStr;
-        if(hour>=6 && hour<=12){
-            timeStr = "上午 "+ hour+":"+minute;
-        }else if(hour>=12 && hour<=19){
-            timeStr = "下午 "+ hour+":"+minute;
-        }else{
-            timeStr = "晚上 "+ hour+":"+minute;
-        }
-
-        mNoteList.add(new Note(false, R.drawable.book,R.drawable.notifications,R.drawable.star_a, "标题1", "内容1", date, timeStr));
-
-        mNoteList.add(new Note(isDel,id,notifiId,starId,title,content,createDate,modifyDate));
-
-        showNewNote();
+        String date=sdf.format(new Date());
+        mNoteList.add(new Note(false, R.drawable.book,R.drawable.notifications,R.drawable.star_a,
+                "aab","ssss",date,date));
+        mNoteList.add(new Note(false, R.drawable.book,R.drawable.notifications,R.drawable.star_a,
+                "abb","ssss",date,date));
+        mNoteList.add(new Note(false, R.drawable.book,R.drawable.notifications,R.drawable.star_a,
+                "acc","ssss",date,date));
+        mNoteList.add(new Note(false, R.drawable.book,R.drawable.notifications,R.drawable.star_a,
+                "bbb","ssss",date,date));
+        mNoteList.add(new Note(false, R.drawable.book,R.drawable.notifications,R.drawable.star_a,
+                "baa","ssss",date,date));
     }
 
-    private void showNewNote() {
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
-        LinearLayoutManager manager = new LinearLayoutManager(this);
-        manager.setOrientation(LinearLayoutManager.VERTICAL);
-
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        mRecyclerView.setLayoutManager(manager);
-        mMyAdapter = new MyAdapter(mNoteList);
-        mRecyclerView.setAdapter(mMyAdapter);
-    }
 }
 
 

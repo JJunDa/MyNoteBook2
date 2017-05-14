@@ -3,6 +3,7 @@ package com.example.administrator.mynotebook.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,11 +14,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.administrator.mynotebook.R;
+import com.example.administrator.mynotebook.ui.date.EventBusEvent;
+import com.example.administrator.mynotebook.ui.date.Note;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import MyInterface.saveNote;
 import utils.NoteUtils;
 
 /**
@@ -28,14 +32,11 @@ public class AddActivity extends AppCompatActivity {
     private Spinner spinner;
     private ImageView leftbtn;
     private Button btnSave;
-    private saveNote msaveNote;
-
     private TextView add_time;
     private TextView add_contenttitle;
     private TextView add_content;
-
-
-
+    private String NOW_TIME = null;
+    private String NOW_DAY = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +45,7 @@ public class AddActivity extends AppCompatActivity {
         inits();
 
     }
-
+    //初始化控件
     private void inits() {
         spinner = (Spinner) findViewById(R.id.spinner1);
         leftbtn = (ImageView) findViewById(R.id.add_left);
@@ -53,22 +54,25 @@ public class AddActivity extends AppCompatActivity {
         add_contenttitle =(TextView) findViewById(R.id.add_contenttitle);
         add_content = (TextView) findViewById(R.id.add_content);
 
-        initsSpinner();
-        okBtnAction();
-        saveButAction();
+        initsSpinner();//初始化下拉框
+        getNowTime();//获得当前时间
+        add_time.setText(NOW_DAY+" | "+NOW_TIME);
+        reBtnAction();//返回按钮事件
+        saveButAction();//保存按钮事件
 
     }
 
-
-    private void okBtnAction() {
+    //返回按钮事件
+    private void reBtnAction() {
         leftbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                gotoMainActivity();
+              finish();
             }
         });
     }
 
+    //返回按钮事件
     private void saveButAction() {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,16 +84,18 @@ public class AddActivity extends AppCompatActivity {
                 int starId =R.drawable.star_a;
                 String title = add_contenttitle.getText().toString();
                 String content =add_content.getText().toString();
-                SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
-                String date=sdf.format(new Date());
-                Log.i("AAA",id+",notifiId"+notifiId+",starId"+starId+",title"+title+",content"+content+",date"+date);
+                String date=NOW_DAY;
+                String timeStr = NOW_TIME;
 
+                Log.i("AAA----",id+",notifiId-"+notifiId+",starId-"+starId+",title-"+title+",content-"+content+",date-"+date);
                 NoteUtils.addNote(AddActivity.this, id, notifiId, starId, title,content, date);
 
-                //通知MainActivity
-                msaveNote.addLists(false,id,notifiId,starId,title,content,date,date);
 
-                gotoMainActivity();
+                Note newNote = new Note(false,id,notifiId,starId,title,content,date,timeStr);
+             //用EventBus通知MainActivity
+                EventBus.getDefault().post(new EventBusEvent(newNote));
+
+                finish();
             }
         });
     }
@@ -100,7 +106,7 @@ public class AddActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
+    //初始化下拉框
     private void initsSpinner() {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -115,6 +121,22 @@ public class AddActivity extends AppCompatActivity {
             }
         });
     }
+    //获得当前日期NOW_DAY，时间NOW_TIME
+    public void getNowTime() {
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+        NOW_DAY=sdf.format(new Date());
 
+        Time t = new Time(); // or Time t=new Time("GMT+8"); 加上Time Zone资料。
+        t.setToNow();
+        int hour = t.hour; // 0-23
+        int minute = t.minute;
 
+        if (hour >= 6 && hour <= 12) {
+            NOW_TIME = "上午 " + hour + ":" + minute;
+        } else if (hour >= 12 && hour <= 19) {
+            NOW_TIME = "下午 " + hour + ":" + minute;
+        } else {
+            NOW_TIME = "晚上 " + hour + ":" + minute;
+        }
+    }
 }
